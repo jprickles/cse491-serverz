@@ -1,3 +1,5 @@
 2014-01-07  Titus Brown  <t@Titus-MacBook-Air-2.local>
 
  * Initialized repository, created server.py and README.
+ * Edited server.py such that it produces the desired information
+ * Detailed changes in ChangeLog
