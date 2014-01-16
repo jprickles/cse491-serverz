@@ -24,6 +24,11 @@ while True:
     c.send('Connection:close\r\n')
     c.send('\r\n')
     c.send("<h1>Hello, world!</h1> this is ettemaet's server\n")
+
+    # @JP The only thing that needs to be changed is putting spaces
+    #      in between your "Thank you for connecting" and "good bye."
+    #      it doesnt look prett with smashed words together.
+    #      ____CODE BELOW____
     c.send('Thank you for connecting')
     c.send("good bye.")
     c.close()
