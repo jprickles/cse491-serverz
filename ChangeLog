@@ -1,5 +1,11 @@
-2014-01-07  Titus Brown  <t@Titus-MacBook-Air-2.local>
+2014-01-21  Jacob Prickett  <t@Titus-MacBook-Air-2.local>
 
  * Initialized repository, created server.py and README.
  * Edited server.py such that it produces the desired information
  * Detailed changes in ChangeLog
+ * Edited server.py to perform functions to be able to test
+ * Modified server.py to access and return different html for file, image,
+      content 
+ * Added links to '/' to access file, image, directory
+ * Updated test-server.py so that all request URLs are tested
+ * Modify server.py to handle GET and POST separately
