@@ -2,64 +2,121 @@
 import random
 import socket
 import time
+import urlparse
 
-def get( conn, path ):
-    if path == '/':
-        conn.send('HTTP/1.0 200 OK \r\n')
-        conn.send('Content-type: text/html \r\n')
-        conn.send('\r\n')
-        conn.send('<h1>Hello, World!</h1> this is pricket4\'s Web server! <br>')
-        conn.send('<a href="/content">  Content   </a><br>')
-        conn.send('<a href="/file">     File      </a><br>')
-        conn.send('<a href="/image">    Image     </a><br>')
-        conn.send('Thank you for connecting. ')
-        conn.send('Good bye!')       
-    elif path == '/content':
-        conn.send('HTTP/1.0 200 OK \r\n')
-        conn.send('Content-type: text/html \r\n')
-        conn.send('\r\n')
-        conn.send('<h1>Content</h1><br>')
-        conn.send('Thank you for connecting. ')
-        conn.send('Good bye!') 
-    elif path == '/file':
-        conn.send('HTTP/1.0 200 OK \r\n')
-        conn.send('Content-type: text/html \r\n')
-        conn.send('\r\n')
-        conn.send('<h1>File</h1><br>')
-        conn.send('Thank you for connecting. ')
-        conn.send('Good bye!') 
-    elif path == '/image':
-        conn.send('HTTP/1.0 200 OK \r\n')
-        conn.send('Content-type: text/html \r\n')
-        conn.send('\r\n')
-        conn.send('<h1>Image</h1><br>')
-        conn.send('Thank you for connecting. ')
-        conn.send('Good bye!') 
-    else:
-        conn.send('HTTP/1.0 200 OK \r\n')
-        conn.send('Content-type: text/html \r\n')
-        conn.send('\r\n')
-        conn.send('<h1>Page Not Found</h1><br>')
-        conn.send('Thank you for connecting. ')
-        conn.send('Good bye!')        
-
-def post( conn ):
-    conn.send('HTTP/1.0 200 OK \r\n\r\n')
-    conn.send('Hello World!')
-
-def handle_connection( conn ):
-    recv = conn.recv(1000)
-    check = (recv).split('\r\n')[0].split(' ')[0]
-    if check == 'GET':
+# Handles the connection
+def handle_connection(conn):
+    info = conn.recv(1000)
+    
+    request = info.split(' ')
+    urlRequest = request[1]
+    urlInfo = urlparse.urlparse(urlRequest)
+    urlPath = urlInfo.path
+    
+    if request[0] == 'GET':
         try:
-            path = recv.split('\r\n')[0].split(' ')[1]
-            get( conn, path )
+            host = request[3].split('\r')
+            host = host[0]
         except IndexError:
-            get( conn, '/404' )
-    elif check == 'POST':
-        post( conn )
-
+            host = '';
+        
+        if urlPath == '/':
+            handle_index(conn, urlInfo)
+        elif urlPath == '/content':
+            handle_content(conn, urlInfo)
+        elif urlPath == '/file':
+            handle_file(conn, urlInfo)
+        elif urlPath == '/image':
+            handle_image(conn, urlInfo)
+        elif urlPath == '/form':
+            handle_form(conn, urlInfo)
+        elif urlPath == '/submit':
+            handle_submit(conn, urlInfo, info, 'GET')
+        else:
+            handle_no_page(conn, urlInfo)
+    elif request[0] == 'POST':
+        if urlPath == '/submit':
+           handle_submit(conn, urlInfo, info, 'POST')
+        else:
+            handle_post(conn, info)
+        
     conn.close()
+
+def handle_index(conn, urlInfo):
+    toSend = 'HTTP/1.0 200 OK\r\n' + \
+             'Content-type: text/html\r\n\r\n' + \
+             '<h1>Hello, world.</h1>' + \
+             'This is JPrickles\'s web server.' + \
+             '<ul>' + \
+             '<li><a href="/content">Content</a></li>' + \
+             '<li><a href="/file">Files</a></li>' + \
+             '<li><a href="/image">Images</a></li>' + \
+             '<li><a href="/form">Form</a></li>' + \
+             '</ul>'
+    conn.send(toSend)
+
+def handle_content(conn, urlInfo):
+    toSend = 'HTTP/1.0 200 OK\r\n' + \
+             'Content-type: text/html\r\n\r\n' + \
+             '<p>Content page requested</p>'
+    conn.send(toSend)
+
+def handle_file(conn, urlInfo):
+    toSend = 'HTTP/1.0 200 OK\r\n' + \
+             'Content-type: text/html\r\n\r\n' + \
+             '<p>File page requested</p>'
+    conn.send(toSend)
+
+def handle_image(conn, urlInfo):
+    toSend = 'HTTP/1.0 200 OK\r\n' + \
+             'Content-type: text/html\r\n\r\n' + \
+             '<p>Image page requested</p>'
+    conn.send(toSend)
+
+def handle_form(conn, urlInfo):
+    forms = 'HTTP/1.0 200 OK\r\n' + \
+            'Content-type: text/html\r\n' + \
+            '\r\n' + \
+            "<form action='/submit' method='GET'>" + \
+            "First Name:<input type='text' name='firstName'>" + \
+            "Last Name:<input type='text' name='lastName'>" + \
+            "<input type='submit' value='Submit Get'>" + \
+            "</form>\r\n" + \
+            "<form action='/submit' method='POST'>" + \
+            "First Name:<input type='text' name='firstName'>" + \
+            "Last Name:<input type='text' name='lastName'>" + \
+            "<input type='submit' value='Submit Post'>" + \
+            "</form>\r\n"
+    conn.send(forms)
+
+def handle_submit(conn, urlInfo, info, reqType):
+    if reqType == "GET":
+        query = urlInfo.query
+    elif reqType == "POST":
+        query = info.splitlines()[-1]
+        
+    data = urlparse.parse_qs(query)
+    firstName = data['firstName'][0]
+    lastName = data['lastName'][0]
+    greeting = 'Hello Mr. %s %s.' % (firstName,lastName)
+    toSend = 'HTTP/1.0 200 OK\r\n' + \
+             'Content-type: text/html\r\n\r\n' + \
+             '<p>' + \
+             greeting + \
+             '</p>'
+    conn.send(toSend)
+
+def handle_no_page(conn, urlInfo):
+    toSend = 'HTTP/1.0 200 OK\r\n' + \
+             'Content-type: text/html\r\n\r\n' + \
+             '<h2>Page Not Found!! :(</h2>'
+    conn.send(toSend)
+
+def handle_post(conn, info):
+    toSend = 'HTTP/1.0 200 OK\r\n' + \
+             'Content-type: text/html\r\n\r\n' + \
+             '<h2>hello world</h2>'
+    conn.send(toSend)
 
 def main():
     s = socket.socket()         # Create a socket object
