@@ -9,7 +9,14 @@
  * Added links to '/' to access file, image, directory
  * Updated test-server.py so that all request URLs are tested
  * Modify server.py to handle GET and POST separately
- * -------------HW3----------------
+ 
+ -------------HW3----------------
  * Modified the organization of code
  * Added form features
  * Added URL Parsing Features
+ 
+ 2.6.14
+ -------------HW4----------------
+ * New form of type multipart/form-data
+ * Templating used to generate html
+ * Requests of variable size work correctly
