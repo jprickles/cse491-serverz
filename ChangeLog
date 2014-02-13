@@ -21,3 +21,8 @@
  * New form of type multipart/form-data
  * Templating used to generate html
  * Requests of variable size work correctly
+ 
+ 2.12.14
+ -------------HW5----------------
+ * Added template inheritance
+ * WSGI App Addition 

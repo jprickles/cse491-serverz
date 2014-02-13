@@ -6,7 +6,7 @@ import urlparse
 import cgi
 import jinja2
 from StringIO import StringIO
-from mimetools import Message
+from app import make_app
 
 def handle_connection(conn):
     loader = jinja2.FileSystemLoader('./templates')
@@ -25,165 +25,59 @@ def handle_connection(conn):
     reqType = info.split('\r\n')[0].split(' ')[1]
     urlInfo = urlparse.urlparse(reqType)
     reqType = urlInfo.path
-
-    if req == 'GET':
-        if reqType == '/':
-            handle_slash(conn, urlInfo, env)
-        elif reqType == '/content':
-            handle_content(conn, urlInfo, env)
-        elif reqType == '/file':
-            handle_file(conn, urlInfo, env)
-        elif reqType == '/image':
-            handle_image(conn, urlInfo, env)
-        elif reqType == '/form':
-            handle_form(conn, urlInfo, env)
-        elif reqType == '/submit':
-            handle_submit_get(conn, urlInfo, env)
-        else:
-            not_found(conn, urlInfo, env)
-    elif req == 'POST':
-        handle_post(conn, info, env)
-    conn.close()
-
-def handle_slash(conn, urlInfo, env):
-    content = 'HTTP/1.0 200 OK\r\n' + \
-              'Content-type: text/html\r\n' + \
-              '\r\n'
-    conn.send(content)
-
-    template = env.get_template('index_page.html').render()
-    conn.send(template)
-
-def handle_content(conn, urlInfo, env):
-    content = 'HTTP/1.0 200 OK\r\n' + \
-              'Content-type: text/html\r\n' + \
-              '\r\n'
-    conn.send(content)
-    template = env.get_template('content_page.html').render()
-    conn.send(template)
-
-def handle_file(conn, urlInfo, env):
-    content = 'HTTP/1.0 200 OK\r\n' + \
-              'Content-type: text/html\r\n' + \
-              '\r\n'
-    conn.send(content)
-
-    template = env.get_template('files_page.html').render()
-    conn.send(template)
-
-def handle_image(conn, urlInfo, env):
-    content = 'HTTP/1.0 200 OK\r\n' + \
-              'Content-type: text/html\r\n' + \
-              '\r\n'
-    conn.send(content)
-
-    template = env.get_template('image_page.html').render()
-    conn.send(template)
-
-def handle_form(conn, urlInfo, env):
-    content = 'HTTP/1.0 200 OK\r\n' + \
-              'Content-type: text/html\r\n' + \
-              '\r\n'
-    conn.send(content)
-
-    template = env.get_template('form_page.html').render()
-    conn.send(template)
-
-def handle_submit_get(conn, urlInfo, env):
-    content = 'HTTP/1.0 200 OK\r\n' + \
-              'Content-type: text/html\r\n' + \
-              '\r\n'
-    conn.send(content)
     query = urlInfo.query
-    data = urlparse.parse_qs(query)
 
-    try:
-        firstname = data['firstname'][0]
-    except KeyError:
-        firstname = ''
-    try:
-        lastname = data['lastname'][0]
-    except KeyError:
-        lastname = ''
-
-    vars = dict(firstname=firstname, lastname=lastname)
-    template = env.get_template('submit_get.html').render(vars)
-    conn.send(template)
-
-def handle_post(conn, info, env):
-    content = 'HTTP/1.0 200 OK\r\n' + \
-              'Content-type: text/html\r\n' + \
-             '\r\n'
-    conn.send(content)
-
-    infoData = info.split()
-
+    content       = '';
     contentLength = 0;
-    contentType = '';
-    lineSplit = info.split('\r\n')
-    for s in lineSplit:
-        if 'Content-Type' in s:
-            contentType = s.split()[1]
-        if 'Content-Length' in s:
-            contentLength = int (s.split()[1])
+    contentType   = '';
+    wsgi_input    = '';
+    lineSplit     = info.split('\r\n')
+    if req == 'POST':
+        for s in lineSplit:
+            if 'Content-Type' in s:
+                contentType = s.split(' ', 1)[1]
+            if 'Content-Length' in s:
+                contentLength = int (s.split()[1])
+        for i in range(contentLength):
+            content += conn.recv(1)
+        wsgi_input = StringIO(content)
 
-    # read characters
-    for i in range(contentLength):
-        content += conn.recv(1)
+    """
+    print 'REQUEST_METHOD is ', req
+    print 'PATH_INFO IS      ', reqType
+    print 'QUERY_STRING is   ', query
+    print 'CONTENT_TYPE is   ', contentType
+    print 'CONTENT_LENGTH is ', contentLength
+    print 'WSGI_INPUT is     ', wsgi_input
+    """
 
-    if contentType == 'application/x-www-form-urlencoded':
-        query = content.splitlines()[-1]
-        data = urlparse.parse_qs(query)
+    environ = {}
+    environ['REQUEST_METHOD'] = req
+    environ['PATH_INFO']      = reqType
+    environ['QUERY_STRING']   = query
+    environ['CONTENT_TYPE']   = contentType
+    environ['CONTENT_LENGTH'] = contentLength
+    environ['wsgi.input']     = wsgi_input
 
-        try:
-            firstname = data['firstname'][0]
-        except KeyError:
-            firstname = ''
-        try:
-            lastname = data['lastname'][0]
-        except KeyError:
-            lastname = ''
-        vars = dict(firstname=firstname, lastname=lastname)
-        template = env.get_template('submit_post_application.html').render(vars)
-        conn.send(template)
+    def start_response(status, response_headers):
+        conn.send('HTTP/1.0')
+        conn.send(status)
+        conn.send('\r\n')
+        for (k,v) in response_headers:
+            conn.send(k)
+            conn.send(v)
+        conn.send('\r\n\r\n')
 
-    elif contentType == 'multipart/form-data;':
-        # contains request info as well as header info
-        headers = info.split('\r\n', 1)[1]
-        headers = headers[:-4]
-        headers = headers.split('\r\n')
-        d = {}
-        for line in headers:
-            k, v = line.split(': ', 1)
-            d[k.lower()] = v
-        environ = {}
-        environ['REQUEST_METHOD'] = 'POST'
-        form = cgi.FieldStorage(
-            headers = d,
-            fp=StringIO(content),
-            environ=environ
-        )
-        firstname=''
-        try:
-            firstname = form['firstname'].value
-        except KeyError:
-            firstname = ''
-        try:
-            lastname = form['lastname'].value
-        except KeyError:
-            lastname = ''
-        vars = dict(firstname=firstname, lastname=lastname)
-        template = env.get_template('submit_post_application.html').render(vars)
-        conn.send(template)
-
-def not_found(conn, urlInfo, env):
-    content = 'HTTP/1.0 404 Not Found\r\n' + \
-              'Content-type: text/html\r\n' + \
-              '\r\n'
-    conn.send(content)
-
-    template = env.get_template("not_found.html").render()
-    conn.send(template)
+    wsgi_app = make_app()
+    output   = wsgi_app(environ, start_response)
+    for line in output:
+        conn.send(line)
+    """
+    ret = ["%s: %s\n" % (key, value)
+           for key, value in environ.iteritems()]
+    print ret
+    """
+    conn.close()
 
 def main():
 
