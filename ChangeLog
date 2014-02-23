@@ -25,4 +25,10 @@
  2.12.14
  -------------HW5----------------
  * Added template inheritance
- * WSGI App Addition 
+ * WSGI App Additions
+ 
+ 2.22.14
+ -------------HW6----------------
+ * Wrote functions that serve file/image
+ * Works with Three Quixote Demo Apps
+ * Implemented WSGI Validator
