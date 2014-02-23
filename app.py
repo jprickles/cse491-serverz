@@ -39,6 +39,7 @@ class my_app:
                 self.handle_file()
             elif path == '/image':
                 self.handle_image()
+                headers = [('Content-type: ', 'image/jpeg')]
             elif path == '/form':
                 self.handle_form()
             elif path == '/submit':
@@ -74,11 +75,27 @@ class my_app:
         vars = dict(title='File')
         content = self.env.get_template('files_page.html').render(vars).encode('latin-1', 'replace')
         self.output.append(content)
+        self.serve_file()
+
+    def serve_file(self):
+        filename = 'file.txt'
+        fp = open(filename, "rb")
+        data = fp.read()
+        fp.close()
+        self.output.append(data)
 
     def handle_image(self):
         vars = dict(title='Image')
         content = self.env.get_template('image_page.html').render(vars).encode('latin-1', 'replace')
-        self.output.append(content)
+        # self.output.append(content)
+        self.serve_image()
+
+    def serve_image(self):
+        filename = 'blake.jpg'
+        fp = open(filename, "rb")
+        data = fp.read()
+        fp.close()
+        self.output.append(data)
 
     def handle_form(self):
         vars = dict(title='Form')

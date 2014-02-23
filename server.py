@@ -5,8 +5,25 @@ import time
 import urlparse
 import cgi
 import jinja2
+import quixote
 from StringIO import StringIO
 from app import make_app
+from wsgiref.validate import validator
+from wsgiref.simple_server import make_server
+
+# from quixote.demo import create_publisher
+# from quixote.demo.mini_demo import create_publisher
+# from quixote.demo.altdemo import create_publisher
+# 
+# _the_app = None
+# def make_app():
+#     global _the_app
+# 
+#     if _the_app is None:
+#         p = create_publisher()
+#         _the_app = quixote.get_wsgi_app()
+# 
+#     return _the_app
 
 def handle_connection(conn):
     loader = jinja2.FileSystemLoader('./templates')
@@ -42,15 +59,6 @@ def handle_connection(conn):
             content += conn.recv(1)
         wsgi_input = StringIO(content)
 
-    """
-    print 'REQUEST_METHOD is ', req
-    print 'PATH_INFO IS      ', reqType
-    print 'QUERY_STRING is   ', query
-    print 'CONTENT_TYPE is   ', contentType
-    print 'CONTENT_LENGTH is ', contentLength
-    print 'WSGI_INPUT is     ', wsgi_input
-    """
-
     environ = {}
     environ['REQUEST_METHOD'] = req
     environ['PATH_INFO']      = reqType
@@ -58,6 +66,7 @@ def handle_connection(conn):
     environ['CONTENT_TYPE']   = contentType
     environ['CONTENT_LENGTH'] = contentLength
     environ['wsgi.input']     = wsgi_input
+    environ['SCRIPT_NAME']    = ''
 
     def start_response(status, response_headers):
         conn.send('HTTP/1.0')
@@ -68,15 +77,13 @@ def handle_connection(conn):
             conn.send(v)
         conn.send('\r\n\r\n')
 
-    wsgi_app = make_app()
+    wsgi_app = make_app()                             # WSGI Make Application
+    validator_app = validator(wsgi_app)               # WSGI Validator
+    
     output   = wsgi_app(environ, start_response)
     for line in output:
         conn.send(line)
-    """
-    ret = ["%s: %s\n" % (key, value)
-           for key, value in environ.iteritems()]
-    print ret
-    """
+
     conn.close()
 
 def main():
