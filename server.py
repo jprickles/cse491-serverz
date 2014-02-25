@@ -6,34 +6,48 @@ import urlparse
 import cgi
 import jinja2
 import quixote
+import StringIO
 from StringIO import StringIO
 from app import make_app
 from wsgiref.validate import validator
 from wsgiref.simple_server import make_server
 
-# from quixote.demo import create_publisher
-# from quixote.demo.mini_demo import create_publisher
-# from quixote.demo.altdemo import create_publisher
-# 
-# _the_app = None
-# def make_app():
-#     global _the_app
-# 
-#     if _the_app is None:
-#         p = create_publisher()
-#         _the_app = quixote.get_wsgi_app()
-# 
-#     return _the_app
+
+from quixote.demo import create_publisher
+from quixote.demo.mini_demo import create_publisher
+from quixote.demo.altdemo import create_publisher
+ 
+_the_app = None
+def make_app():
+    global _the_app
+
+    if _the_app is None:
+        p = create_publisher()
+        _the_app = quixote.get_wsgi_app()
+    return _the_app
 
 def handle_connection(conn):
     loader = jinja2.FileSystemLoader('./templates')
     env = jinja2.Environment(loader=loader)
 
     info = conn.recv(1)
-
+	
     # info is headers
     while info[-4:] != '\r\n\r\n':
         info += conn.recv(1)
+
+
+
+    reqc = StringIO(info)
+    reqc.readline()
+    headers = {}
+    while (True):
+        temp = reqc.readline()
+        if temp == "\r\n":
+            break
+
+        temp = temp.split("\r\n")[0].split(":", 1)
+        headers[temp[0].lower()] = temp[1]
 
     # req is either POST or GET
     req = info.split('\r\n')[0].split(' ')[0]
@@ -67,6 +81,7 @@ def handle_connection(conn):
     environ['CONTENT_LENGTH'] = contentLength
     environ['wsgi.input']     = wsgi_input
     environ['SCRIPT_NAME']    = ''
+    environ['HTTP_COOKIE']    = headers['cookie']
 
     def start_response(status, response_headers):
         conn.send('HTTP/1.0')

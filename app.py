@@ -10,7 +10,6 @@ import cgi
 
 
 class my_app:
-
     def __init__(self):
         loader      = jinja2.FileSystemLoader('./templates')
         self.env    = jinja2.Environment(loader=loader)
