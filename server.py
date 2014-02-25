@@ -7,24 +7,24 @@ import cgi
 import jinja2
 import quixote
 import StringIO
+import imageapp
 from StringIO import StringIO
 from app import make_app
 from wsgiref.validate import validator
 from wsgiref.simple_server import make_server
 
-
-from quixote.demo import create_publisher
-from quixote.demo.mini_demo import create_publisher
-from quixote.demo.altdemo import create_publisher
- 
-_the_app = None
-def make_app():
-    global _the_app
-
-    if _the_app is None:
-        p = create_publisher()
-        _the_app = quixote.get_wsgi_app()
-    return _the_app
+# from quixote.demo import create_publisher
+# from quixote.demo.mini_demo import create_publisher
+# from quixote.demo.altdemo import create_publisher
+#  
+# _the_app = None
+# def make_app():
+#     global _the_app
+# 
+#     if _the_app is None:
+#         p = create_publisher()
+#         _the_app = quixote.get_wsgi_app()
+#     return _the_app
 
 def handle_connection(conn):
     loader = jinja2.FileSystemLoader('./templates')
@@ -36,11 +36,10 @@ def handle_connection(conn):
     while info[-4:] != '\r\n\r\n':
         info += conn.recv(1)
 
-
-
     reqc = StringIO(info)
     reqc.readline()
     headers = {}
+    headers['cookie'] = ''
     while (True):
         temp = reqc.readline()
         if temp == "\r\n":
@@ -72,7 +71,7 @@ def handle_connection(conn):
         for i in range(contentLength):
             content += conn.recv(1)
         wsgi_input = StringIO(content)
-
+	
     environ = {}
     environ['REQUEST_METHOD'] = req
     environ['PATH_INFO']      = reqType
@@ -92,7 +91,7 @@ def handle_connection(conn):
             conn.send(v)
         conn.send('\r\n\r\n')
 
-    wsgi_app = make_app()                             # WSGI Make Application
+    wsgi_app      = make_app()                        # WSGI Make Application
     validator_app = validator(wsgi_app)               # WSGI Validator
     
     output   = wsgi_app(environ, start_response)
@@ -103,8 +102,11 @@ def handle_connection(conn):
 
 def main():
 
+    imageapp.setup()
+    p = imageapp.create_publisher()
+
     s = socket.socket()         # Create a socket object
-    host = socket.getfqdn() # Get local machine name
+    host = socket.getfqdn()     # Get local machine name
     port = random.randint(8000, 9999)
     s.bind((host, port))        # Bind to the port
 
@@ -118,7 +120,10 @@ def main():
         # Establish connection with client.
         c, (client_host, client_port) = s.accept()
         print 'Got connection from', client_host, client_port
-        handle_connection(c)
+        try:
+            handle_connection(c)
+        finally:
+            imageapp.teardown()
 
 if __name__ == "__main__":
     main()
