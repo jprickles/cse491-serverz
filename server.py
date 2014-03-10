@@ -26,7 +26,7 @@ from wsgiref.simple_server import make_server
 #         _the_app = quixote.get_wsgi_app()
 #     return _the_app
 
-def handle_connection(conn):
+def handle_connection(conn, port):
     loader = jinja2.FileSystemLoader('./templates')
     env = jinja2.Environment(loader=loader)
 
@@ -73,29 +73,40 @@ def handle_connection(conn):
         wsgi_input = StringIO(content)
 	
     environ = {}
-    environ['REQUEST_METHOD'] = req
-    environ['PATH_INFO']      = reqType
-    environ['QUERY_STRING']   = query
-    environ['CONTENT_TYPE']   = contentType
-    environ['CONTENT_LENGTH'] = contentLength
-    environ['wsgi.input']     = wsgi_input
-    environ['SCRIPT_NAME']    = ''
-    environ['HTTP_COOKIE']    = headers['cookie']
+    environ['REQUEST_METHOD']    = req
+    environ['PATH_INFO']         = reqType
+    environ['QUERY_STRING']      = query
+    environ['CONTENT_TYPE']      = contentType
+    environ['CONTENT_LENGTH']    = contentLength
+    environ['wsgi.input']        = wsgi_input
+    environ['SCRIPT_NAME']       = ''
+    environ['SERVER_NAME']       = socket.getfqdn()
+    environ['SERVER_PORT']       = str(port)
+    environ['wsgi.errors']       = StringIO('blah')
+    environ['wsgi.multithread']  = ''
+    environ['wsgi.multiprocess'] = ''
+    environ['wsgi.run_once']     = ''
+    environ['wsgi.version']      = (2,0)
+    environ['wsgi.url_scheme']   = 'http'
+    environ['HTTP_COOKIE']       = headers['cookie']
 
     def start_response(status, response_headers):
-        conn.send('HTTP/1.0')
+        conn.send('HTTP/1.0 ')
         conn.send(status)
         conn.send('\r\n')
         for (k,v) in response_headers:
-            conn.send(k)
-            conn.send(v)
-        conn.send('\r\n\r\n')
+            conn.send("%s: %s\r\n" % (k,v))
+        conn.send('\r\n')
 
-    wsgi_app      = make_app()                        # WSGI Make Application
-    validator_app = validator(wsgi_app)               # WSGI Validator
-    
-    output   = wsgi_app(environ, start_response)
-    for line in output:
+    app    = quixote.get_wsgi_app()
+    result = app(environ, start_response)     
+
+#     app           = make_app()                   # WSGI Make Application
+#     validator_app = validator(app)               # WSGI Validator
+#     
+#     result        = app(environ, start_response)
+
+    for line in result:
         conn.send(line)
 
     conn.close()
@@ -108,6 +119,7 @@ def main():
     s = socket.socket()         # Create a socket object
     host = socket.getfqdn()     # Get local machine name
     port = random.randint(8000, 9999)
+#     port = 8821
     s.bind((host, port))        # Bind to the port
 
     print 'Starting server on', host, port
@@ -121,7 +133,7 @@ def main():
         c, (client_host, client_port) = s.accept()
         print 'Got connection from', client_host, client_port
         try:
-            handle_connection(c)
+            handle_connection(c, port)
         finally:
             imageapp.teardown()
 
