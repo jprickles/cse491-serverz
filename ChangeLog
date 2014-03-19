@@ -32,3 +32,10 @@
  * Wrote functions that serve file/image
  * Works with Three Quixote Demo Apps
  * Implemented WSGI Validator
+
+ 2.25.14
+ -------------HW7----------------
+ * Added Cooking Header Handling
+ * Updated imageapp and implemented in own server.py
+ * Adjusted tests for nosetests
+ 
