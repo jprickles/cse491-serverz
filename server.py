@@ -8,14 +8,17 @@ import jinja2
 import quixote
 import StringIO
 import imageapp
+import argparse
+import PIL
 from StringIO import StringIO
 from app import make_app
 from wsgiref.validate import validator
 from wsgiref.simple_server import make_server
+from quixote.demo.altdemo import create_publisher
+
 
 # from quixote.demo import create_publisher
 # from quixote.demo.mini_demo import create_publisher
-# from quixote.demo.altdemo import create_publisher
 #  
 # _the_app = None
 # def make_app():
@@ -26,7 +29,7 @@ from wsgiref.simple_server import make_server
 #         _the_app = quixote.get_wsgi_app()
 #     return _the_app
 
-def handle_connection(conn, port):
+def handle_connection(conn, port, wsgi_app):
     loader = jinja2.FileSystemLoader('./templates')
     env = jinja2.Environment(loader=loader)
 
@@ -98,13 +101,13 @@ def handle_connection(conn, port):
             conn.send("%s: %s\r\n" % (k,v))
         conn.send('\r\n')
 
-    app    = quixote.get_wsgi_app()
-    result = app(environ, start_response)     
+#    app    = quixote.get_wsgi_app()
+#    result = app(environ, start_response)     
 
 #     app           = make_app()                   # WSGI Make Application
-#     validator_app = validator(app)               # WSGI Validator
-#     
-#     result        = app(environ, start_response)
+    validator_app = validator(wsgi_app)               # WSGI Validator
+
+    result        = wsgi_app(environ, start_response)
 
     for line in result:
         conn.send(line)
@@ -113,13 +116,34 @@ def handle_connection(conn, port):
 
 def main():
 
-    imageapp.setup()
-    p = imageapp.create_publisher()
+    parser = argparse.ArgumentParser()
+    parser.add_argument( '-A', '--runApp', help = 'Application to run (image/altdemo/myapp)' )
+    parser.add_argument( '-p', '--portNumb', help = 'Specified port number', type=int )
+    
+    args = parser.parse_args()
+    
+    # Handle port input (if there)
+    if args.portNumb:
+        port = args.portNumb
+    else:
+        port = random.randint(8000, 9999)
 
+	# Determine what app to create
+    if args.runApp == "myapp":
+	    wsgi_app = make_app()
+    elif args.runApp == "image":
+        imageapp.setup()
+        p        = imageapp.create_publisher()
+        wsgi_app = quixote.get_wsgi_app()
+    elif args.runApp == "altdemo":
+    	p        = create_publisher()
+    	wsgi_app = quixote.get_wsgi_app()
+    else:
+		print "Invalid Application..."
+		return
+    	
     s = socket.socket()         # Create a socket object
     host = socket.getfqdn()     # Get local machine name
-    port = random.randint(8000, 9999)
-#     port = 8821
     s.bind((host, port))        # Bind to the port
 
     print 'Starting server on', host, port
@@ -133,7 +157,7 @@ def main():
         c, (client_host, client_port) = s.accept()
         print 'Got connection from', client_host, client_port
         try:
-            handle_connection(c, port)
+            handle_connection(c, port, wsgi_app)
         finally:
             imageapp.teardown()
 
