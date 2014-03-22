@@ -1,0 +1,9 @@
+go /content
+code 200
+
+go /file
+find "This is a test file"
+code 200
+
+go /image
+code 200

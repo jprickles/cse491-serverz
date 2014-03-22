@@ -30,7 +30,7 @@ class FakeConnection(object):
 def test_handle_connection():
     conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
 
-    server.handle_connection(conn, 0)
+    server.handle_connection(conn, 0, "args")
 
     assert 'HTTP/1.0 200' in conn.sent
     assert 'JPrickles' in conn.sent, \

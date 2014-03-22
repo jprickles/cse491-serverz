@@ -32,9 +32,25 @@ class RootDirectory(Directory):
     def image(self):
         return html.render('image.html')
 
+    @export(name='list')
+    def list(self):
+    	templateVars = { "images" : image.images }
+        return html.render('list.html', templateVars )
+
     @export(name='image_raw')
     def image_raw(self):
         response = quixote.get_response()
         response.set_content_type('image/png')
         img = image.get_latest_image()
         return img
+    
+    @export(name='get_image')
+    def get_im(self):
+		request = quixote.get_request()
+		
+		response = quixote.get_response()
+		response.set_content_type('image/png')
+		
+		the_int = int(request.form['special'])
+		img = image.get_image(the_int)
+		return img

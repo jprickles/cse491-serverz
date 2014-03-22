@@ -23,10 +23,7 @@ class my_app:
         contentLength = environ['CONTENT_LENGTH']
         wsgiInput     = environ['wsgi.input']
 
-#        setup_testing_defaults(environ)
-
         status = '200 OK '
-# CHANGED
         headers = [('Content-type: ', 'text/html')]
 
         if req == 'GET':
@@ -37,8 +34,8 @@ class my_app:
             elif path == '/file':
                 self.handle_file()
             elif path == '/image':
-                self.handle_image()
                 headers = [('Content-type: ', 'image/jpeg')]
+                self.handle_image()
             elif path == '/form':
                 self.handle_form()
             elif path == '/submit':
@@ -57,22 +54,24 @@ class my_app:
         ret.insert(0, "This is your environ.  Hello, world!\n\n")
         """
 
-#        return ret
         return self.output
 
     def handle_slash(self):
         vars = dict(title='Home')
         content = self.env.get_template('index_page.html').render(vars).encode('latin-1', 'replace')
+        self.output = []
         self.output.append(content)
 
     def handle_content(self):
         vars = dict(title='Content')
         content = self.env.get_template('content_page.html').render(vars).encode('latin-1', 'replace')
+        self.output = []
         self.output.append(content)
 
     def handle_file(self):
         vars = dict(title='File')
         content = self.env.get_template('files_page.html').render(vars).encode('latin-1', 'replace')
+        self.output = []
         self.output.append(content)
         self.serve_file()
 
@@ -87,6 +86,7 @@ class my_app:
         vars = dict(title='Image')
         content = self.env.get_template('image_page.html').render(vars).encode('latin-1', 'replace')
         # self.output.append(content)
+        self.output = []
         self.serve_image()
 
     def serve_image(self):
@@ -99,6 +99,7 @@ class my_app:
     def handle_form(self):
         vars = dict(title='Form')
         content = self.env.get_template('form_page.html').render(vars).encode('latin-1', 'replace')
+        self.output = []
         self.output.append(content)
 
     def send_200():
@@ -118,11 +119,13 @@ class my_app:
 
         vars = dict(firstname=firstname, lastname=lastname, title='Get')
         template = self.env.get_template('submit_get.html').render(vars).encode('latin-1', 'replace')
+        self.output = []
         self.output.append(template)
 
     def not_found(self):
         vars=dict(title='404')
         template = self.env.get_template('not_found.html').render(vars).encode('latin-1', 'replace')
+        self.output = []
         self.output.append(template)
 
     def handle_post(self, contentLength, contentType, wsgiInput, environ):
@@ -153,6 +156,7 @@ class my_app:
             lastname = ''
         vars = dict(firstname=firstname, lastname=lastname, title='Post')
         template = self.env.get_template('submit_post_application.html').render(vars).encode('latin-1', 'replace')
+        self.output = []
         self.output.append(template)
 
 def make_app():

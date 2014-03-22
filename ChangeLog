@@ -39,3 +39,16 @@
  * Updated imageapp and implemented in own server.py
  * Adjusted tests for nosetests
  
+ 3.19.14
+ -------------HW8----------------
+ * Added command line arguments for execution specifying port/app to run
+ * Ran and implemented own twill test that successfully passed for my own server
+ * Select from the project list number 5
+ *     successfully implemented a new page for the image app that displays all current
+ *     images that are uploaded to the server. This was done by creating a new page to
+ *     render that was passed the dictionary of all current pictures, then iterating through
+ *     this using a jinja, each image_num was passed via parsing the incoming request for 
+ *     the image for the 'special' variable that was used in calling the get_image app 
+ *     ~NOTE: Implemented on imageapp, but was unsure of wither it should be on my app or not.
+ 
+ 
