@@ -16,18 +16,8 @@ from wsgiref.validate import validator
 from wsgiref.simple_server import make_server
 from quixote.demo.altdemo import create_publisher
 
-
-# from quixote.demo import create_publisher
-# from quixote.demo.mini_demo import create_publisher
-#  
-# _the_app = None
-# def make_app():
-#     global _the_app
-# 
-#     if _the_app is None:
-#         p = create_publisher()
-#         _the_app = quixote.get_wsgi_app()
-#     return _the_app
+import quotes
+import chat
 
 def handle_connection(conn, port, wsgi_app):
     loader = jinja2.FileSystemLoader('./templates')
@@ -39,9 +29,9 @@ def handle_connection(conn, port, wsgi_app):
     while info[-4:] != '\r\n\r\n':
         info += conn.recv(1)
 
-    reqc = StringIO(info)
+    reqc              = StringIO(info)
     reqc.readline()
-    headers = {}
+    headers           = {}
     headers['cookie'] = ''
     while (True):
         temp = reqc.readline()
@@ -98,13 +88,9 @@ def handle_connection(conn, port, wsgi_app):
         conn.send(status)
         conn.send('\r\n')
         for (k,v) in response_headers:
-            conn.send("%s: %s\r\n" % (k,v))
+            conn.send('%s: %s\r\n' % (k,v))
         conn.send('\r\n')
 
-#    app    = quixote.get_wsgi_app()
-#    result = app(environ, start_response)     
-
-#     app           = make_app()                   # WSGI Make Application
     validator_app = validator(wsgi_app)               # WSGI Validator
 
     result        = wsgi_app(environ, start_response)
@@ -129,17 +115,21 @@ def main():
         port = random.randint(8000, 9999)
 
 	# Determine what app to create
-    if args.runApp == "myapp":
+    if args.runApp == 'myapp':
 	    wsgi_app = make_app()
-    elif args.runApp == "image":
+    elif args.runApp == 'image':
         imageapp.setup()
         p        = imageapp.create_publisher()
         wsgi_app = quixote.get_wsgi_app()
-    elif args.runApp == "altdemo":
+    elif args.runApp == 'altdemo':
     	p        = create_publisher()
     	wsgi_app = quixote.get_wsgi_app()
+    elif args.runApp == 'quotes':
+    	wsgi_app = quotes.setup()
+    elif args.runApp == 'chat':
+    	wsgi_app = chat.setup()
     else:
-		print "Invalid Application..."
+		print 'Invalid Application...'
 		return
     	
     s = socket.socket()         # Create a socket object
