@@ -51,4 +51,19 @@
  *     the image for the 'special' variable that was used in calling the get_image app 
  *     ~NOTE: Implemented on imageapp, but was unsure of wither it should be on my app or not.
  
- 
+  3.25.14
+ -------------HW9----------------
+ * Implemented the Quotes application into server.py
+ * Implemented the Chat application as well into server.py
+ *     -Also added timestamp into chat window by taking timestamp and formatting it into 
+ *          human readable time string
+ * Chose Project #4 which was to add TIFF and JPEG image handling to the imageapp. This was done
+ *     by first altering the image.py function add_image to allow another parameter to be passed which
+ *     would be the type of the image, storing both in a list. Next, in root.py upload recieve was 
+ *     altered such that it took the full file path from the form and extracted the file 
+ *     type from there. Then checking for differences like "jpg" and "jpeg." Next, the get image
+ *     method had to be altered to adjust for the different response types based on the image. 
+ *     Which is basically the second element in the list, returning the first which is the data portion
+ *     of the image. Similarly using this method, I altered the page in which it displayed a list of 
+ *     images that had been uploaded, allowing for this functionality to work as well. 
+ *     !! Only issue that arose was displaying the TIFF images, they are not supported in chrome or firefox 
