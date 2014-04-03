@@ -1,4 +1,5 @@
 import quixote
+from PIL import Image
 from quixote.directory import Directory, export, subdir
 
 from . import html, image
@@ -20,6 +21,7 @@ class RootDirectory(Directory):
         print request.form.keys()
 
         the_file = request.form['file']
+        
         fileType = ( the_file.base_filename.split('.')[1] ).lower()
         if fileType == 'tiff' or fileType == 'tif':
         	fileType = 'tiff'

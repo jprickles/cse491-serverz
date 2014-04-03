@@ -67,3 +67,11 @@
  *     of the image. Similarly using this method, I altered the page in which it displayed a list of 
  *     images that had been uploaded, allowing for this functionality to work as well. 
  *     !! Only issue that arose was displaying the TIFF images, they are not supported in chrome or firefox 
+ 
+  -------------HW10----------------
+ * Implemented commenting on image that is located on the home page
+ *		found assistance online in functionality of comment box
+ * Also placed a limit on the upload size using JavaScript, with a limit of
+ *      5 MB. This functionally works correct in determining size and notifying user
+ *      but had issues with actually stopping the upload and redirecting browser. Many attempts were
+ *      made to find a solution but I am going to continue to figure out this issue.
