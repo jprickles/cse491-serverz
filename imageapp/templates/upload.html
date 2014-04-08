@@ -1,10 +1,34 @@
-{% extends "base.html" %}
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
 
-{% block content %}
+
+
 Upload a PNG, JPG, or TIFF:
 
-<form enctype='multipart/form-data' action='upload_receive' method='POST'>
-Filename: <input type='file' name='file'><p>
-<input type='submit'>
+<form enctype='multipart/form-data' action='upload_receive' method='POST' id='myForm'>
+Filename: <input type='file' name='file' id='i_file'><p>
+		  <input type='submit' id='i_submit'>
 </form>
-{% endblock %}
+
+<script type='text/javascript' action='upload_receive'>
+$('#i_submit').click( function() {
+    //check whether browser fully supports all File API
+    if (window.File && window.FileReader && window.FileList && window.Blob)
+    {
+        //get the file size and file type from file input field
+        var fsize = $('#i_file')[0].files[0].size;
+        
+        if(fsize>1048576) //do something if file size more than 5 mb
+        {
+            alert("Error! File too large!");
+            window.location.replace(document.URL);
+        }
+        else 
+            document.getElementById("myForm").submit();
+    }else{
+        alert("Please upgrade your browser, because your current browser lacks some new features we need!");
+    }
+    
+});
+</script>
