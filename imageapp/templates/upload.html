@@ -7,8 +7,10 @@
 Upload a PNG, JPG, or TIFF:
 
 <form enctype='multipart/form-data' action='upload_receive' method='POST' id='myForm'>
-Filename: <input type='file' name='file' id='i_file'><p>
-		  <input type='submit' id='i_submit'>
+<p>Filename: <input type='file' name='file' id='i_file'></p>
+<p>Image Name: <input type='text' name='name' size=25></p>
+<p>Description: <input type='text' name='description' size=50></p>
+<p><input type='submit' id='i_submit'></p>
 </form>
 
 <script type='text/javascript' action='upload_receive'>
@@ -24,8 +26,6 @@ $('#i_submit').click( function() {
             alert("Error! File too large!");
             window.location.replace(document.URL);
         }
-        else 
-            document.getElementById("myForm").submit();
     }else{
         alert("Please upgrade your browser, because your current browser lacks some new features we need!");
     }

@@ -75,3 +75,13 @@
  *      5 MB. This functionally works correct in determining size and notifying user
  *      but had issues with actually stopping the upload and redirecting browser. Many attempts were
  *      made to find a solution but I am going to continue to figure out this issue.
+ 
+   4.9.14
+ -------------HW11----------------
+ * Integrated the 'Cookie App' into server.py --> Runs on '-A cookie'
+ * Removed dictionary storage of images and implemented sqlite3, allowing for data persistance
+ * Added image metadata storage, uploading, and retrieval. The information is entered when the user
+ *      uploads an image and has the ability to name the picture and also give a description. These are
+ *      are then displayed below the image when the user views all images in the database as a list.
+ * Piggy backing off of the previous choice, I implemented a search page that functions as a single search bar
+ *      that queries the database so that it finds all similar results to the entered string. 

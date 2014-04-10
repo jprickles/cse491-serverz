@@ -16,9 +16,6 @@ from wsgiref.validate import validator
 from wsgiref.simple_server import make_server
 from quixote.demo.altdemo import create_publisher
 
-import quotes
-import chat
-
 def handle_connection(conn, port, wsgi_app):
     loader = jinja2.FileSystemLoader('./templates')
     env = jinja2.Environment(loader=loader)
@@ -107,7 +104,7 @@ def main():
     parser.add_argument( '-p', '--portNumb', help = 'Specified port number', type=int )
     
     args = parser.parse_args()
-    
+
     # Handle port input (if there)
     if args.portNumb:
         port = args.portNumb
@@ -125,9 +122,14 @@ def main():
     	p        = create_publisher()
     	wsgi_app = quixote.get_wsgi_app()
     elif args.runApp == 'quotes':
+    	import quotes
     	wsgi_app = quotes.setup()
     elif args.runApp == 'chat':
+    	import chat
     	wsgi_app = chat.setup()
+    elif args.runApp == 'cookie':
+    	import cookieapp
+        wsgi_app = cookieapp.wsgi_app
     else:
 		print 'Invalid Application...'
 		return
