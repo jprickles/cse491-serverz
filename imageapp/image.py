@@ -1,16 +1,7 @@
 # image handling API
 import sqlite3
 
-# images = {}
-
 def add_image(data, type, name, description):
-#     if images:
-#         image_num = max(images.keys()) + 1
-#     else:
-#         image_num = 0
-#         
-#     images[image_num] = [data, type]
-        
     
     db = sqlite3.connect('images.sqlite')
     c = db.cursor()
