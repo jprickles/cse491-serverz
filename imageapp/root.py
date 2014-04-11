@@ -21,6 +21,8 @@ class RootDirectory(Directory):
         print request.form.keys()
 
         the_file = request.form['file']
+        f_name   = request.form['name']
+        f_desc   = request.form['description']
         
         fileType = ( the_file.base_filename.split('.')[1] ).lower()
         if fileType == 'tiff' or fileType == 'tif':
@@ -33,7 +35,7 @@ class RootDirectory(Directory):
         print 'received file with name:', the_file.base_filename
         data = the_file.read(int(1e9))
 
-        image.add_image(data, fileType)
+        image.add_image(data, fileType, f_name, f_desc)
 
         return quixote.redirect('./')
 
@@ -43,9 +45,23 @@ class RootDirectory(Directory):
 
     @export(name='list')
     def list(self):
-    	templateVars = { "images" : image.images }
-        return html.render('list.html', templateVars )
+    	results = image.get_all_images()
+        return html.render('list.html', results )
 
+    @export(name='search')
+    def search(self):
+    	return html.render('search.html')
+    
+    @export(name='result')
+    def result(self):
+    	response = quixote.get_request()
+    	
+    	info = response.form['query']
+    	
+    	results = image.search(info)
+    	return html.render('result.html', results)
+    
+    
     @export(name='image_raw')
     def image_raw(self):
         response = quixote.get_response()

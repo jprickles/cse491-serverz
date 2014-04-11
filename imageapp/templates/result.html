@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<b>Search Results:</b>
+</br>
+{% if results %}
+	{% for image in results %}
+		<img src='get_image?special={{image["index"]}}' width='500px'>
+		<ul type="square">
+			<li>Filename: {{image["name"]}}</li>
+			<li>Description: {{image["desc"]}}</li>
+		</ul>
+	{% endfor %}
+{% else %} <p> No Images Found! :'( </p>
+{% endif %}
+
+{% endblock %}
