@@ -79,9 +79,34 @@
    4.9.14
  -------------HW11----------------
  * Integrated the 'Cookie App' into server.py --> Runs on '-A cookie'
- * Removed dictionary storage of images and implemented sqlite3, allowing for data persistance
+ * Removed dictionary storage of images and implemented sqlite3, allowing for data persistance [Project 16]
  * Added image metadata storage, uploading, and retrieval. The information is entered when the user
  *      uploads an image and has the ability to name the picture and also give a description. These are
  *      are then displayed below the image when the user views all images in the database as a list.
  * Piggy backing off of the previous choice, I implemented a search page that functions as a single search bar
  *      that queries the database so that it finds all similar results to the entered string. 
+
+   4.15.14
+ -------------HW12----------------
+ * Implemented Project 3 and swiped a template from oswd.org and altered the templates so the styles could be shown 
+ * Project #22 where the resizing of the images is done on the server size for a thumbnail page
+ *     this is done using pillow
+ * Implemented Project 27 allowing a ranking system to be implemented. The ranking system is linked to the thumbnail page
+ *     such that when you click and view the full size image, it allows upvote/downvote of image ranking. This was done 
+ *     by adding another field into the database which is the score. Then allowing for functions to be called that 
+ *     increment and decrement the score. Javascript is used to update the fields live as the user increases/decreases the score. 
+ 
+								 -------------Totals----------------
+								 * Project 5                  5
+								 * Project 4                  5
+								 * Project 8                  5
+								 * Project 11                 5
+								 * Project 16                 5
+								 * Project 6                  5
+								 * Project 7                  5
+								 * Project 3                  5
+								 * Project 22                 5
+ 								 * Project 27                 5
+								 ________________________________
+								 Total:                      50
+ 

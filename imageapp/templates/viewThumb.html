@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+Here is your image:
+<p>
+<img width=40% src='get_image?special={{image}}'/>
+</br>
+Score: <span id="score"></span>
+</br>
+<button id='upvote_button'>Upvote</button>
+<button id='downvote_button'>Downvote</button>
+</br>
+</br>
+<a href='thumbnails'>Go back</a>
+
+<script type="text/javascript">
+var imageNum = window.location.href.split("?i=")[1]
+
+$.post("get_score?special=" + imageNum,
+    function(score) {
+        score = parseInt(score);
+        if (isNaN(score)){
+            $("#score").append(0)
+        }
+        else {
+            $("#score").append(score)
+        }
+        
+    });
+
+$("#upvote_button").click(function() {
+    console.log(imageNum);
+    $.post("increase_score?special=" + imageNum,
+        function() {
+        var score = $("#score").text()
+        score = parseInt(score)
+        score += 1
+        $("#score").empty()
+        $("#score").append(score)
+    });
+});
+
+$("#downvote_button").click(function() {
+    console.log(imageNum);
+    $.post("decrease_score?special=" + imageNum,
+        function() {
+        var score = $("#score").text()
+        score = parseInt(score)
+        score -= 1
+        $("#score").empty()
+        $("#score").append(score)
+    });
+});
+</script>
+{% endblock %}

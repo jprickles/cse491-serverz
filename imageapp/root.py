@@ -1,5 +1,4 @@
 import quixote
-from PIL import Image
 from quixote.directory import Directory, export, subdir
 
 from . import html, image
@@ -10,6 +9,10 @@ class RootDirectory(Directory):
     @export(name='')                    # this makes it public.
     def index(self):
         return html.render('index.html')
+    
+    @export(name='home')
+    def home(self):
+    	return html.render('index.html')
 
     @export(name='upload')
     def upload(self):
@@ -43,10 +46,26 @@ class RootDirectory(Directory):
     def image(self):
         return html.render('image.html')
 
+    @export(name='viewThumb')
+    def viewThumb(self):
+		
+		request = quixote.get_request()
+		response = quixote.get_response()
+		the_int = int(request.form['i'])
+		
+		results = {"image": the_int}
+		
+		return html.render('viewThumb.html', results)
+
     @export(name='list')
     def list(self):
     	results = image.get_all_images()
         return html.render('list.html', results )
+
+    @export(name='thumbnails')
+    def thumbnails(self):
+    	results = image.get_all_images()
+        return html.render('thumbnails.html', results )
 
     @export(name='search')
     def search(self):
@@ -60,12 +79,12 @@ class RootDirectory(Directory):
     	
     	results = image.search(info)
     	return html.render('result.html', results)
-    
-    
+
     @export(name='image_raw')
     def image_raw(self):
         response = quixote.get_response()
         img = image.get_latest_image()
+        print img[1]
         response.set_content_type('image/%s' % img[1])
         
         return img[0]
@@ -80,3 +99,49 @@ class RootDirectory(Directory):
 		
 		response.set_content_type('image/%s' % img[1])
 		return img[0]
+
+    @export(name='get_thumbnail')
+    def get_thumb(self):
+        request = quixote.get_request()
+        response = quixote.get_response()
+        
+        the_int = int(request.form['special'])
+        img = image.get_image(the_int)
+        thumb = image.generate_thumbnail(img[0])
+        response.set_content_type('image/png')
+        
+        return thumb
+    
+    @export(name='get_score')
+    def get_score(self):
+    	request = quixote.get_request()
+    	response = quixote.get_response()
+    	
+    	the_int = int(request.form['special'])
+    	score   = image.get_score(the_int)
+    	return score
+    
+    @export(name='decrease_score')
+    def decrease_score(self):
+    	request = quixote.get_request()
+    	response = quixote.get_response()
+    	
+    	try:
+    		the_int = int(request.form['special'])
+    	except:
+    		the_int = -1
+    		
+    	image.decrease_score(the_int)
+    
+    @export(name='increase_score')
+    def increase_score(self):
+    	request = quixote.get_request()
+    	response = quixote.get_response()
+    	
+    	try:
+    		the_int = int(request.form['special'])
+    	except:
+    		the_int = -1
+    	
+    	
+    	image.increase_score(the_int)
