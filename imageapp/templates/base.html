@@ -2,8 +2,25 @@
 <html>
  <head>
   <meta http-equiv="Content-Type" content="text/html">
+  <style type="text/css">{% include "style.css" %}</style>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
  </head>
  <body>
+ <div id="header">
+<h1>
+	CSE 491: Database-Backed Web Development </br>
+	ImageApp
+</h1>
+	<div id="menu">
+		<ul id="nav">
+		<li><a href='home'>Home</a></li>
+		<li><a href='upload'>Upload an image</a></li>
+		<li><a href='image'>Most Recent Image</a></li> 
+		<li><a href='thumbnails'> Thumbnails </a></li>
+		<li><a href='list'> All Images </a></li>
+		<li><a href='search'> Search Images </a></li>
+	</div>
+</div>
 {% block content %}
 {% endblock %}
  </body>

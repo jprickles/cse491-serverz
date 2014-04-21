@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<b>Thumbnails: </b>
+</br>
+<table border=0 cellspacing=5>
+  {% for i in results %}
+    {% if loop.index0 is divisibleby 4 or loop.first %}
+    <tr>
+    {% endif %}
+      <td id="thumb">
+        <a href=viewThumb?i={{ i['index'] }}>
+          <img src='get_thumbnail?special={{i["index"]}}'>
+        </a>
+      </td>
+    {% if (loop.index0+1) is divisibleby 4 or loop.last %}
+    </tr>
+    {% endif %}
+  {% endfor %}
+</table>
+Click on image to view full size and rank image!
+{% endblock %}

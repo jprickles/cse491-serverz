@@ -19,7 +19,7 @@ def setup():                            # stuff that should be run once.
 		db = sqlite3.connect('images.sqlite')
 		db.execute('CREATE TABLE IF NOT EXISTS image_store' + 
 					'(i INTEGER PRIMARY KEY, image BLOB, type TEXT,' + 
-	    			'name TEXT, description TEXT)')
+	    			'name TEXT, description TEXT, score INTEGER)')
 
 		some_data = open('imageapp/dice.png', 'rb').read()
 		image.add_image(some_data, 'png', 'Dice brah', 'Default Image')
